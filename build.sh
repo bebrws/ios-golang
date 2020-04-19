@@ -1,5 +1,7 @@
 #!/bin/bash
 
+CORRECT_AR=`xcrun --sdk iphoneos -f ar`
+
 bash ./clean.sh
 
 # check THEOS settings
@@ -31,6 +33,19 @@ export CXX=$PWD/clangwrap.sh
 
 echo "building darwin/arm64 static lib"
 go build -buildmode=c-archive -o ./.theos_building/libgolang_arm64.a
+
+mkdir ./.theos_building/arm64tmp
+mv ./.theos_building/libgolang_arm64.a ./.theos_building/arm64tmp/
+pushd ./.theos_building/arm64tmp
+
+ar -x libgolang_arm64.a
+rm libgolang_arm64.a
+$CORRECT_AR csr libgolang_arm64.a *.o
+mv libgolang_arm64.a ../
+
+popd
+rm -rf ./.theos_building/arm64tmp
+
 if [ ! -f ./.theos_building/libgolang_arm64.a ]; then
     echo "failed to build darwin/arm64 static lib!"
     exit 1
@@ -45,6 +60,19 @@ export CXX=$PWD/clangwrap.sh
 
 echo "building darwin/armv7 static lib"
 go build -buildmode=c-archive -o ./.theos_building/libgolang_armv7.a
+
+mkdir ./.theos_building/armv7tmp
+mv ./.theos_building/libgolang_armv7.a ./.theos_building/armv7tmp/
+pushd ./.theos_building/armv7tmp
+
+ar -x libgolang_armv7.a
+rm libgolang_armv7.a
+$CORRECT_AR csr libgolang_armv7.a *.o
+mv libgolang_armv7.a ../
+
+popd
+rm -rf ./.theos_building/armv7tmp
+
 if [ ! -f ./.theos_building/libgolang_armv7.a ]; then
     echo "failed to build darwin/armv7 static lib!"
     exit 1
